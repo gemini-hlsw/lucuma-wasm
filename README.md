@@ -26,6 +26,14 @@ Handles are recycled after `free`; using a freed handle panics (surfaces as a JS
 
 ## Build
 
+With nix (mirrors lucuma-core's flake-based dev shell; `direnv allow` picks up `.envrc`):
+
+    nix develop
+    check        # cargo fmt --check, clippy -D warnings, cargo test (what CI runs)
+    build-wasm   # wasm-pack build --release --target web -> pkg/
+
+Without nix:
+
     rustup target add wasm32-unknown-unknown
     cargo install wasm-pack
     cargo test

@@ -23,8 +23,8 @@ jobs:
           v=$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"(.*)".*/\1/')
           [ "v$v" = "${GITHUB_REF_NAME}" ] || { echo "tag ${GITHUB_REF_NAME} != Cargo version $v"; exit 1; }
       - run: cargo test
-      # --scope sets the npm package scope; drop it for an unscoped package
-      - run: wasm-pack build --release --target web --scope ${NPM_SCOPE}
+      # NPM_SCOPE (repo variable, e.g. gemini-hlsw) scopes the package; leave it unset for an unscoped one
+      - run: wasm-pack build --release --target web ${NPM_SCOPE:+--scope $NPM_SCOPE}
         env:
           NPM_SCOPE: ${{ vars.NPM_SCOPE }}
       - run: node -e "const p=require('./pkg/package.json');p.type='module';p.license='BSD-3-Clause';p.repository={type:'git',url:'git+https://github.com/cquiroz/lucuma-geo-wasm.git'};require('fs').writeFileSync('pkg/package.json',JSON.stringify(p,null,2))"

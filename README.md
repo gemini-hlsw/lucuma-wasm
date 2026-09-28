@@ -1,4 +1,4 @@
-# lucuma-geo-wasm
+# lucuma-wasm
 
 A minimal polygon geometry kernel, Rust [`geo`](https://docs.rs/geo) compiled to WebAssembly,
 built for lucuma-core's Scala.js `ShapeExpression` interpreter. It is not a port of JTS: it

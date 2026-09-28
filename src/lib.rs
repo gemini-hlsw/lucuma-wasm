@@ -34,7 +34,7 @@ fn with<R>(h: u32, f: impl FnOnce(&MultiPolygon<f64>) -> R) -> R {
         let g = a
             .get(h as usize)
             .and_then(|g| g.as_ref())
-            .unwrap_or_else(|| panic!("lucuma-geo-wasm: use of freed or unknown handle {h}"));
+            .unwrap_or_else(|| panic!("lucuma-wasm: use of freed or unknown handle {h}"));
         f(g)
     })
 }
@@ -171,6 +171,23 @@ pub fn coords(h: u32) -> Vec<f64> {
     })
 }
 
+/// Self-describing ring dump for plotting: `[nPolygons, (nRings, (nPoints, x, y, ...)*)*]`.
+/// The first ring of each polygon is its exterior, the rest are holes. Rings are closed.
+#[wasm_bindgen]
+pub fn rings(h: u32) -> Vec<f64> {
+    with(h, |g| {
+        let mut out = vec![g.0.len() as f64];
+        for p in g.iter() {
+            out.push(1.0 + p.interiors().len() as f64);
+            for r in std::iter::once(p.exterior()).chain(p.interiors()) {
+                out.push(r.0.len() as f64);
+                out.extend(r.coords().flat_map(|c| [c.x, c.y]));
+            }
+        }
+        out
+    })
+}
+
 #[wasm_bindgen]
 pub fn contains_point(h: u32, x: f64, y: f64) -> bool {
     with(h, |g| g.contains(&Point::new(x, y)))
@@ -226,6 +243,27 @@ mod tests {
         assert!(contains_point(h, 1.0, 1.0));
         assert!(!contains_point(h, 5.0, 1.0));
         free(h);
+    }
+
+    #[test]
+    fn rings_describe_holes_and_parts() {
+        // A square with a square hole: one polygon, two rings, five closed points each.
+        let outer = rect_new(0.0, 0.0, 10.0, 10.0);
+        let inner = rect_new(4.0, 4.0, 6.0, 6.0);
+        let ring_h = op(2, outer, inner);
+        let r = rings(ring_h);
+        assert_eq!(r[0], 1.0);
+        assert_eq!(r[1], 2.0);
+        assert_eq!(r[2], 5.0);
+        assert_eq!(r[2 + 1 + 10], 5.0);
+        assert_eq!(r.len(), 1 + 1 + (1 + 10) * 2);
+        // Two disjoint squares: two polygons of one ring each.
+        let far = rect_new(20.0, 20.0, 30.0, 30.0);
+        let both = op(1, outer, far);
+        assert_eq!(rings(both)[0], 2.0);
+        for h in [outer, inner, ring_h, far, both] {
+            free(h);
+        }
     }
 
     #[test]

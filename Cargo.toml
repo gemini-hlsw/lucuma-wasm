@@ -1,6 +1,6 @@
 [package]
 name = "lucuma-wasm"
-version = "0.1.1"
+version = "0.1.0"
 edition = "2021"
 description = "Minimal polygon geometry kernel (Rust geo compiled to WebAssembly) for lucuma-core's Scala.js ShapeExpression interpreter"
 repository = "https://github.com/gemini-hlsw/lucuma-wasm"

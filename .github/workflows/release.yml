@@ -14,9 +14,9 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
       - uses: taiki-e/install-action@wasm-pack
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
       - name: Check tag matches Cargo.toml version
         run: |
@@ -25,6 +25,4 @@ jobs:
       - run: cargo test
       - run: wasm-pack build --release --target web --scope gemini-hlsw
       - run: node -e "const p=require('./pkg/package.json');p.type='module';p.license='BSD-3-Clause';p.repository={type:'git',url:'git+https://github.com/gemini-hlsw/lucuma-wasm.git'};require('fs').writeFileSync('pkg/package.json',JSON.stringify(p,null,2))"
-      - run: cd pkg && npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: cd pkg && npm publish --access public

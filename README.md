@@ -60,4 +60,5 @@ In the browser or Vite, `init()` with no arguments resolves the `.wasm` next to 
 ## Release
 
 Tag `vX.Y.Z` matching `Cargo.toml`; the Release workflow builds and runs `npm publish`.
-It publishes as `@gemini-hlsw/lucuma-wasm`; secret `NPM_TOKEN` authenticates.
+It publishes as `@gemini-hlsw/lucuma-wasm` via npm trusted publishing (OIDC, no token);
+the package's trusted publisher on npmjs.com must point at this repo and `release.yml`.
